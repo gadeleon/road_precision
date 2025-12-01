@@ -164,7 +164,7 @@ namespace Road_Precision.Systems
 
             // Format length with decimal places
             string formattedLength = curveLength.ToString($"F{m_LengthDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
-            m_Length.value = $"[P] {formattedLength}m"; // Added [P] prefix
+            m_Length.value = $"[P] {formattedLength}m";
 
             if (courses.Length > 0 && curveLength >= 12f)
             {
@@ -176,7 +176,7 @@ namespace Road_Precision.Systems
 
                 // Format slope with decimal places
                 string sign = finalSlope >= 0 ? "" : "";
-                m_Slope.value = $"[P] {sign}{finalSlope.ToString($"F{m_SlopeDecimalPlaces}")}%"; // Added [P] prefix
+                m_Slope.value = $"[P] {sign}{finalSlope.ToString($"F{m_SlopeDecimalPlaces}")}%";
 
                 // Sort courses and find midpoint
                 SortCourses(courses);

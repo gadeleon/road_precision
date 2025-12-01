@@ -142,7 +142,7 @@ namespace Road_Precision.Systems
                 {
                     stringTooltip.icon = "Media/Glyphs/Length.svg";
                     string formattedLength = tooltipInfo.m_Value.ToString($"F{m_LengthDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
-                    stringTooltip.value = $"[P] {formattedLength}m"; // Added [P] prefix
+                    stringTooltip.value = $"[P] {formattedLength}m";
                 }
 
                 AddGroup(tooltipGroup);
@@ -186,9 +186,10 @@ namespace Road_Precision.Systems
                                 if (segment1Length > 0.01f)
                                 {
                                     // Calculate direction vectors (normalized)
-                                    // dir1 points BACKWARD along first segment (from junction toward start)
-                                    // dir2 points FORWARD along second segment (from junction toward end)
-                                    float2 dir1 = (segment1Start.xz - segment1End.xz) / segment1Length; // Reversed!
+                                    // dir1 points backward along first segment (from junction toward start)
+                                    // dir2 points forward along second segment (from junction toward end)
+                                    // This gives us the interior angle between the two segments
+                                    float2 dir1 = (segment1Start.xz - segment1End.xz) / segment1Length;
                                     float2 dir2 = (segmentEnd.xz - segmentStart.xz) / segmentLength;
 
                                     // Calculate precise angle using the same formula as the game
@@ -236,7 +237,7 @@ namespace Road_Precision.Systems
                                         StringTooltip angleTooltip = angleGroup.children[0] as StringTooltip;
                                         angleTooltip.icon = "Media/Glyphs/Angle.svg";
                                         string formattedAngle = preciseAngle.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
-                                        angleTooltip.value = $"[P] {formattedAngle}°"; // Added [P] prefix
+                                        angleTooltip.value = $"[P] {formattedAngle}°";
 
                                         AddGroup(angleGroup);
                                         preciseAngleCount++;
@@ -363,7 +364,7 @@ namespace Road_Precision.Systems
                                         StringTooltip connectionAngleTooltip1 = connectionAngleGroup1.children[0] as StringTooltip;
                                         connectionAngleTooltip1.icon = "Media/Glyphs/Angle.svg";
                                         string formattedConnectionAngle1 = angle1.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
-                                        connectionAngleTooltip1.value = $"[P] {formattedConnectionAngle1}°"; // Added [P] prefix
+                                        connectionAngleTooltip1.value = $"[P] {formattedConnectionAngle1}°";
 
                                         AddGroup(connectionAngleGroup1);
                                         preciseAngleCount++;
@@ -408,7 +409,7 @@ namespace Road_Precision.Systems
                                         StringTooltip connectionAngleTooltip2 = connectionAngleGroup2.children[0] as StringTooltip;
                                         connectionAngleTooltip2.icon = "Media/Glyphs/Angle.svg";
                                         string formattedConnectionAngle2 = angle2.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
-                                        connectionAngleTooltip2.value = $"[P] {formattedConnectionAngle2}°"; // Added [P] prefix
+                                        connectionAngleTooltip2.value = $"[P] {formattedConnectionAngle2}°";
 
                                         AddGroup(connectionAngleGroup2);
                                         preciseAngleCount++;
