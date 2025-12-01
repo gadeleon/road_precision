@@ -1,4 +1,5 @@
 # Road Precision
+![](Road%20Precision\Properties\Thumbnail.png)
 
 My first attempt at a Cities: Skylines II mod. It displays precise decimal values for road building tooltips, replacing the default rounded integer values where it can or adding new tooltips for ones I could not patch/replace.
 
