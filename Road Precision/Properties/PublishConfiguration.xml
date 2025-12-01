@@ -19,11 +19,7 @@ Adds decimal places to road angles and lengths to allow for better precision at 
 	<Screenshot Value="Properties/949230_35.jpg" />
 	<Screenshot Value="Properties/949230_36.jpg" />
 	<!--Tag, can be set multiple times-->
-	<Tag Value="roads" />
-	<Tag Value="net tool" />
-	<Tag Value="precision" />
-	<Tag Value="angle" />
-	<Tag Value="road precision" />
+	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="" />
 	<!--Version of the mod-->
