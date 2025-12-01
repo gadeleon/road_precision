@@ -8,7 +8,26 @@
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="Adds decimal places to road angles and lengths to allow for better precision at all times." /-->
 	<LongDescription>
-Adds decimal places to road angles and lengths to allow for better precision at all times.
+		Adds decimal places to road angles and lengths to allow for better precision when drawing roads.
+		## Compatibility
+		Not compatible with ExtendedTooltips (for now). We are both patching the same code and I have been unable to resolve the conflicts.
+		## Features
+
+		### Precise Measurements
+		- **Distance/Length**: Shows more precise measurements with configurable decimal places (e.g., "12.34m" instead of "12m")
+		- **Slope/Grade**: Displays slope percentages (e.g., "4.23%" instead of "4%")
+		- **Angles**: Shows more accurate angles when placing curved roads and connecting to existing roads (e.g., "89.73°" instead of "90°")
+
+		### Connection Angles
+		- Displays precise angles when connecting new roads to existing roads
+		- Shows both supplementary angles at each connection point
+		- Works with both edge connections and node/intersection connections
+		- Should handle multiple connected roads at corners
+
+		### [P] Tooltip
+		- All precise tooltips are prefixed with `[P]` to distinguish them from vanilla tooltips
+		- Precise tooltips appear alongside vanilla tooltips for easy comparison (and because my attempts at replacing the tooltips failed gloriously).
+
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
