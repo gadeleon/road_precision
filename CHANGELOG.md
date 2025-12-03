@@ -8,17 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- NetCourse tooltips now show alongside vanilla tooltips with 300px horizontal offset
 - GuideLine angle should be easier to read.
 - Tooltip systems now use Harmony patches with priority to ensure compatibility with other mods
-- Vanilla angle tooltips appearing alongside precision tooltips (now properly hidden)
+- Vanilla tooltips no longer appear alongside precision tooltips (now properly hidden)
 
 ### Fixed
 - Duplicate tooltip path errors when drawing long roads
 - Duplicate angle tooltips appearing on top of each other
 - Shouldn't crash with **ExtendedTooltip** mod installed.
 
-### Technical
+### Aside
 - Looked into UI modding approach for tooltip color customization but no luck.
 
 ## [0.1.0] - Initial Release
