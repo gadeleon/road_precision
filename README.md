@@ -6,7 +6,7 @@ My first attempt at a Cities: Skylines II mod. It displays precise decimal value
 This is not how I would have preferred to have done this (simply modifying the UI) but instead takes the distance/angle calculations and converts them to strings before the game UI itself has a chance to round-down the calculations.
 
 ## Compatibility
-Not compatible with ExtendedTooltips (for now). We are both patching the same code and I have been unable to resolve the conflicts.
+[Needs Testing] Should be compatible with **ExtendedTooltips** but needs extensive testing.
 ## Features
 
 ### Precise Measurements
@@ -22,7 +22,7 @@ Not compatible with ExtendedTooltips (for now). We are both patching the same co
 
 ### [P] Tooltip
 - All precise tooltips are prefixed with `[P]` to distinguish them from vanilla tooltips
-- Precise tooltips appear alongside vanilla tooltips for easy comparison (and because my attempts at replacing the tooltips failed gloriously).
+- Precise tooltips appear by themselves by hiding the vanilla tooltip system.
 
 ## Settings
 

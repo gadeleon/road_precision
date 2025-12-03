@@ -10,7 +10,7 @@
 	<LongDescription>
 		Adds decimal places to road angles and lengths to allow for better precision when drawing roads.
 		## Compatibility
-		Not compatible with ExtendedTooltips (for now). We are both patching the same code and I have been unable to resolve the conflicts.
+		[Needs Testing] Should be compatible with **ExtendedTooltips** but needs extensive testing.
 		## Features
 
 		### Precise Measurements
@@ -50,9 +50,24 @@
 	<!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
 	<RequiredDLC Value="" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-	<ChangeLog Value="" />
-	<!--<ChangeLog>
-	</ChangeLog>-->
+	<!--ChangeLog Value="" /-->
+	<ChangeLog>
+		## [Unreleased]
+
+		### Changed
+		- NetCourse tooltips now show alongside vanilla tooltips with 300px horizontal offset
+		- GuideLine angle should be easier to read.
+		- Tooltip systems now use Harmony patches with priority to ensure compatibility with other mods
+		- Vanilla angle tooltips appearing alongside precision tooltips (now properly hidden)
+
+		### Fixed
+		- Duplicate tooltip path errors when drawing long roads
+		- Duplicate angle tooltips appearing on top of each other
+		- Shouldn't crash with **ExtendedTooltip** mod installed.
+
+		### Technical
+		- Looked into UI modding approach for tooltip color customization but no luck.
+	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="github" Url="https://github.com/gadeleon/road_precision" />
 	<!--Supported values Public, Private, Unlisted-->
