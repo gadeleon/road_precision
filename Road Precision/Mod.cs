@@ -31,19 +31,19 @@ namespace Road_Precision
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Setting));
             AssetDatabase.global.LoadSettings(nameof(Road_Precision), Setting, new Setting(this));
 
-            // Apply Harmony patches (currently only GuideLineTooltipSystem is patched)
+            // Apply Harmony patches to disable vanilla tooltip systems
             m_Harmony = new Harmony($"{nameof(Road_Precision)}.{nameof(Mod)}");
             m_Harmony.PatchAll(typeof(Mod).Assembly);
-            log.Info("Harmony patches applied");
+            log.Info("Harmony patches applied (NetCourseTooltipSystem and GuideLineTooltipSystem disabled)");
 
-            // Register custom tooltip systems that add precision tooltips alongside vanilla tooltips
+            // Register custom tooltip systems that replace vanilla tooltips with precision versions
             updateSystem.UpdateAt<PrecisionNetCourseTooltipSystem>(SystemUpdatePhase.UITooltip);
-            log.Info("PrecisionNetCourseTooltipSystem registered (shows alongside vanilla tooltips)");
+            log.Info("PrecisionNetCourseTooltipSystem registered (replaces vanilla NetCourse tooltips)");
 
             updateSystem.UpdateAt<PrecisionGuideLineTooltipSystem>(SystemUpdatePhase.UITooltip);
-            log.Info("PrecisionGuideLineTooltipSystem registered (replaces vanilla tooltips)");
+            log.Info("PrecisionGuideLineTooltipSystem registered (replaces vanilla GuideLine tooltips)");
 
-            log.Info("NOTE: GuideLineTooltipSystem patch is incompatible with ExtendedTooltip mod. Please disable one or the other.");
+            log.Info("NOTE: Tooltip patches are incompatible with ExtendedTooltip mod. Please disable one or the other.");
 
             if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
                 log.Info($"Current mod asset at {asset.path}");

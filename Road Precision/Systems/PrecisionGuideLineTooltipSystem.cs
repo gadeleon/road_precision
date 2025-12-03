@@ -133,10 +133,9 @@ namespace Road_Precision.Systems
 
                 if (type == GuideLinesSystem.TooltipType.Angle)
                 {
-                    stringTooltip.icon = "Media/Glyphs/Angle.svg";
-                    // Note: Angle values are whole numbers due to Burst compilation preventing patching
-                    string formattedAngle = tooltipInfo.m_Value.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
-                    stringTooltip.value = $"{formattedAngle}°";
+                    // Skip vanilla angle tooltips - we calculate precise ones below
+                    // This prevents duplicate angle tooltips (vanilla + precise)
+                    continue;
                 }
                 else if (type == GuideLinesSystem.TooltipType.Length)
                 {
@@ -320,14 +319,13 @@ namespace Road_Precision.Systems
                                     float dotProduct = math.clamp(math.dot(existingDir, newSegmentDir), -1f, 1f);
                                     float preciseConnectionAngle = math.degrees(math.acos(dotProduct));
 
-                                    // Calculate both angles - they are supplementary (add up to 180°)
+                                    // Calculate both supplementary angles
                                     float angle1 = preciseConnectionAngle;
-                                    float angle2 = 180f - preciseConnectionAngle; // Supplementary angle
+                                    float angle2 = 180f - preciseConnectionAngle;
 
-                                    // Create tooltips for both angles (match vanilla behavior - show all angles except exactly 0)
-                                    if (angle1 > 0f && angle1 <= 180f)
+                                    // Show the first angle (skip if exactly 0 or 180)
+                                    if (angle1 > 0.1f && angle1 < 179.9f)
                                     {
-                                        // First angle tooltip
                                         if (m_PreciseAngleGroups.Count <= preciseAngleCount)
                                         {
                                             m_PreciseAngleGroups.Add(new TooltipGroup
@@ -345,12 +343,12 @@ namespace Road_Precision.Systems
 
                                         TooltipGroup connectionAngleGroup1 = m_PreciseAngleGroups[preciseAngleCount];
 
-                                        // Position first tooltip on the appropriate side (larger offset)
+                                        // Position tooltip on one side
                                         float3 tooltipWorldPos1 = controlPoint.m_Position;
                                         float2 avgDir1 = math.normalize(existingDir + newSegmentDir);
                                         float2 offsetDir1 = new float2(-avgDir1.y, avgDir1.x);
-                                        tooltipWorldPos1.xz += offsetDir1 * 10f; // Increased to 10f for better separation
-                                        tooltipWorldPos1.y += 2.5f; // Increased vertical offset
+                                        tooltipWorldPos1.xz += offsetDir1 * 25f;
+                                        tooltipWorldPos1.y += 3.0f;
 
                                         bool visible1;
                                         float2 tooltipScreenPos1 = WorldToTooltipPos(tooltipWorldPos1, out visible1);
@@ -370,9 +368,9 @@ namespace Road_Precision.Systems
                                         preciseAngleCount++;
                                     }
 
-                                    if (angle2 > 0f && angle2 <= 180f)
+                                    // Show the second angle (supplementary angle on opposite side)
+                                    if (angle2 > 0.1f && angle2 < 179.9f)
                                     {
-                                        // Second angle tooltip (on the other side)
                                         if (m_PreciseAngleGroups.Count <= preciseAngleCount)
                                         {
                                             m_PreciseAngleGroups.Add(new TooltipGroup
@@ -390,12 +388,12 @@ namespace Road_Precision.Systems
 
                                         TooltipGroup connectionAngleGroup2 = m_PreciseAngleGroups[preciseAngleCount];
 
-                                        // Position second tooltip on the opposite side (larger offset)
+                                        // Position tooltip on opposite side
                                         float3 tooltipWorldPos2 = controlPoint.m_Position;
-                                        float2 avgDir2 = math.normalize(existingDir - newSegmentDir); // Note: minus for opposite side
+                                        float2 avgDir2 = math.normalize(existingDir - newSegmentDir); // Opposite side
                                         float2 offsetDir2 = new float2(-avgDir2.y, avgDir2.x);
-                                        tooltipWorldPos2.xz += offsetDir2 * 10f; // Increased to 10f for better separation
-                                        tooltipWorldPos2.y += 3.5f; // Larger vertical offset difference
+                                        tooltipWorldPos2.xz += offsetDir2 * 25f;
+                                        tooltipWorldPos2.y += 6.0f; // Larger height difference for better separation
 
                                         bool visible2;
                                         float2 tooltipScreenPos2 = WorldToTooltipPos(tooltipWorldPos2, out visible2);
