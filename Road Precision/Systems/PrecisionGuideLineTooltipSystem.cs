@@ -297,6 +297,13 @@ namespace Road_Precision.Systems
             for (int i = 0; i < tooltips.Length; i++)
             {
                 GuideLinesSystem.TooltipInfo tooltipInfo = tooltips[i];
+                GuideLinesSystem.TooltipType type = tooltipInfo.m_Type;
+
+                // For angle tooltips, skip if we don't have precise angles to show
+                if (type == GuideLinesSystem.TooltipType.Angle && preciseAngles.Count == 0)
+                {
+                    continue; // Don't show [P] angle tooltips when we can't calculate precise values
+                }
 
                 if (m_Groups.Count <= i)
                 {
@@ -327,7 +334,6 @@ namespace Road_Precision.Systems
                 }
 
                 StringTooltip stringTooltip = tooltipGroup.children[0] as StringTooltip;
-                GuideLinesSystem.TooltipType type = tooltipInfo.m_Type;
 
                 // Process both angle and length tooltips from vanilla system
                 if (type == GuideLinesSystem.TooltipType.Angle)
@@ -338,9 +344,6 @@ namespace Road_Precision.Systems
                     float angleValue = tooltipInfo.m_Value; // Default to vanilla value
                     int vanillaRounded = (int)math.round(tooltipInfo.m_Value);
 
-                    Mod.log.Info($"Processing vanilla tooltip: vanilla angle={tooltipInfo.m_Value} (rounded={vanillaRounded})");
-                    Mod.log.Info($"List has {preciseAngles.Count} precise angles");
-
                     // Find a precise angle that rounds to the vanilla value
                     float bestMatch = angleValue;
                     float smallestDiff = float.MaxValue;
@@ -348,7 +351,6 @@ namespace Road_Precision.Systems
                     foreach (float preciseAngle in preciseAngles)
                     {
                         int preciseRounded = (int)math.round(preciseAngle);
-                        Mod.log.Info($"  Precise angle={preciseAngle} (rounded={preciseRounded})");
 
                         if (preciseRounded == vanillaRounded)
                         {
@@ -358,13 +360,11 @@ namespace Road_Precision.Systems
                             {
                                 smallestDiff = diff;
                                 bestMatch = preciseAngle;
-                                Mod.log.Info($"    -> MATCHED! Using precise angle {preciseAngle}");
                             }
                         }
                     }
 
                     angleValue = bestMatch;
-                    Mod.log.Info($"Final angle value: {angleValue}");
 
                     string formattedAngle = angleValue.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
                     stringTooltip.value = $"[P] {formattedAngle}°";
@@ -379,19 +379,18 @@ namespace Road_Precision.Systems
                 AddGroup(tooltipGroup);
             }
 
-            // Create additional precise angle tooltips from NetToolSystem control points
+            // COMMENTED OUT: Create additional precise angle tooltips from NetToolSystem control points
+            // These are now shown in the [P] tooltips with 55px offset instead
+            /*
             if (m_ToolSystem.activeTool == m_NetToolSystem)
             {
                 JobHandle controlPointsHandle;
                 NativeList<ControlPoint> controlPoints = m_NetToolSystem.GetControlPoints(out controlPointsHandle);
                 controlPointsHandle.Complete();
 
-                // COMMENTED OUT: Control point angle tooltips during complex curves
-                // These are now shown in the [P] tooltips with 55px offset instead
                 // We need at least 2 control points to calculate angles between segments
                 // Each angle requires 2 line segments (3 points total)
                 int preciseAngleCount = 0;
-                /*
                 if (controlPoints.Length >= 2)
                 {
                     for (int i = 1; i < controlPoints.Length; i++)
@@ -481,9 +480,10 @@ namespace Road_Precision.Systems
                         }
                     }
                 }
-                */
 
-                // Calculate precise angles for connections to existing roads
+                // COMMENTED OUT: Calculate precise angles for connections to existing roads
+                // These tooltips are now shown in the [P] tooltips with 55px offset instead
+                /*
                 for (int i = 0; i < controlPoints.Length; i++)
                 {
                     ControlPoint controlPoint = controlPoints[i];
@@ -491,9 +491,7 @@ namespace Road_Precision.Systems
                     // Check if this control point is snapped to an existing road
                     if (controlPoint.m_OriginalEntity != Entity.Null)
                     {
-                        // COMMENTED OUT: Edge connection tooltips (snapping to middle of existing roads)
-                        // These are now shown in the [P] tooltips with 55px offset instead
-                        /*
+                        // Edge connection tooltips (snapping to middle of existing roads)
                         // Try to get the Edge component (if snapped to an edge)
                         if (m_EdgeData.HasComponent(controlPoint.m_OriginalEntity))
                         {
@@ -725,10 +723,10 @@ namespace Road_Precision.Systems
                                 }
                             }
                         }
-                        */
                     }
                 }
             }
+            */
         }
     }
 }
