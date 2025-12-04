@@ -71,3 +71,4 @@ Developed using:
 
 ## Known Issues:
 - The continuous curve tool may not always show precise tooltips.
+- **[P] angle tooltips are not displayed when "snap to existing geometry" is disabled.** When drawing roads without snapping enabled, the mod cannot calculate precise angles because control points don't reference existing road entities. In this case, only vanilla angle tooltips and [P] length tooltips will be shown. Enable snap-to-geometry for precise angle measurements.
