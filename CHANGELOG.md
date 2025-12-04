@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Precision tooltip systems now use unique tooltip paths to prevent conflicts
 
 ### Fixed
+- Compatible with versions 1.5.*
 - Removed duplicate angle tooltips at control points during complex curves (now shown in [P] tooltips only)
 - Removed duplicate angle tooltips when connecting to road edges (now shown in [P] tooltips only)
 - Duplicate tooltip path errors when drawing long roads
