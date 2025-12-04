@@ -294,15 +294,33 @@ namespace Road_Precision.Systems
             NativeList<GuideLinesSystem.TooltipInfo> tooltips = m_GuideLinesSystem.GetTooltips(out jobHandle);
             jobHandle.Complete();
 
+            // Check if snap-to-geometry is effectively disabled by seeing if we have any OriginalEntity references
+            bool hasSnapReferences = false;
+            if (m_ToolSystem.activeTool == m_NetToolSystem)
+            {
+                JobHandle controlPointsHandle;
+                NativeList<ControlPoint> controlPoints = m_NetToolSystem.GetControlPoints(out controlPointsHandle);
+                controlPointsHandle.Complete();
+
+                for (int i = 0; i < controlPoints.Length; i++)
+                {
+                    if (controlPoints[i].m_OriginalEntity != Entity.Null)
+                    {
+                        hasSnapReferences = true;
+                        break;
+                    }
+                }
+            }
+
             for (int i = 0; i < tooltips.Length; i++)
             {
                 GuideLinesSystem.TooltipInfo tooltipInfo = tooltips[i];
                 GuideLinesSystem.TooltipType type = tooltipInfo.m_Type;
 
-                // For angle tooltips, skip if we don't have precise angles to show
-                if (type == GuideLinesSystem.TooltipType.Angle && preciseAngles.Count == 0)
+                // For angle tooltips, skip if snap-to-geometry is disabled (no OriginalEntity references)
+                if (type == GuideLinesSystem.TooltipType.Angle && !hasSnapReferences)
                 {
-                    continue; // Don't show [P] angle tooltips when we can't calculate precise values
+                    continue; // Don't show [P] angle tooltips when snap-to-geometry is disabled
                 }
 
                 if (m_Groups.Count <= i)
