@@ -8,19 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- GuideLine angle should be easier to read.
-- Tooltip systems now use Harmony patches with priority to ensure compatibility with other mods
-- Vanilla tooltips no longer appear alongside precision tooltips (now properly hidden)
+- Both vanilla and precision tooltips now display simultaneously
+- NetCourse precision tooltips now offset to the right of vanilla tooltips
+- GuideLine precision tooltips now offset below vanilla tooltips
+- Precision tooltip systems now use unique tooltip paths to prevent conflicts
 
 ### Fixed
+- Removed duplicate angle tooltips at control points during complex curves (now shown in [P] tooltips only)
+- Removed duplicate angle tooltips when connecting to road edges (now shown in [P] tooltips only)
 - Duplicate tooltip path errors when drawing long roads
-- Duplicate angle tooltips appearing on top of each other
-- Shouldn't crash with **ExtendedTooltip** mod installed.
+- Duplicate angle tooltips appearing on top of each other at control points
+- Precise angles now work correctly when connecting to intersections/corners (Nodes)
+- [Needs Testing] Should be compatibile with **ExtendedTooltip** and other tooltip mods
 
-### Aside
-- Looked into UI modding approach for tooltip color customization but no luck.
+### Technical
+- Looked into UI modding approach for tooltip color customization but no luck
 
-## [0.1.0] - Initial Release
+## [0.0.1] - Initial Release
 
 ### Added
 - Basic precision tooltip functionality

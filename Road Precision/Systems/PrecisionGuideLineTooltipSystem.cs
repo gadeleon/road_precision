@@ -8,7 +8,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace Road_Precision.Systems
 {
@@ -17,7 +16,6 @@ namespace Road_Precision.Systems
     /// - LENGTH tooltips: Shows decimal precision (e.g., "12.34m" instead of "12m")
     /// - ANGLE tooltips: Creates additional precise angle tooltips by calculating angles
     ///   directly from NetToolSystem control points (e.g., "89.73°" instead of "90°")
-    /// NOTE: Incompatible with ExtendedTooltip mod - please disable one or the other.
     /// </summary>
     public partial class PrecisionGuideLineTooltipSystem : TooltipSystemBase
     {
@@ -95,6 +93,203 @@ namespace Road_Precision.Systems
                 }
             }
 
+            // First, calculate all precise angles and store them
+            // We'll match by rounded angle value, not position (since vanilla offsets tooltip positions)
+            List<float> preciseAngles = new List<float>();
+
+            if (m_ToolSystem.activeTool == m_NetToolSystem)
+            {
+                JobHandle controlPointsHandle;
+                NativeList<ControlPoint> controlPoints = m_NetToolSystem.GetControlPoints(out controlPointsHandle);
+                controlPointsHandle.Complete();
+
+                // Calculate angles between consecutive control points
+                for (int i = 2; i < controlPoints.Length; i++)
+                {
+                    ControlPoint prevPrevPoint = controlPoints[i - 2];
+                    ControlPoint prevPoint = controlPoints[i - 1];
+                    ControlPoint currentPoint = controlPoints[i];
+
+                    float3 segment1Start = prevPrevPoint.m_Position;
+                    float3 segment1End = prevPoint.m_Position;
+                    float segment1Length = math.distance(segment1Start.xz, segment1End.xz);
+
+                    float3 segment2Start = prevPoint.m_Position;
+                    float3 segment2End = currentPoint.m_Position;
+                    float segment2Length = math.distance(segment2Start.xz, segment2End.xz);
+
+                    if (segment1Length > 0.01f && segment2Length > 0.01f)
+                    {
+                        float2 dir1 = (segment1Start.xz - segment1End.xz) / segment1Length;
+                        float2 dir2 = (segment2End.xz - segment2Start.xz) / segment2Length;
+
+                        float dotProduct = math.clamp(math.dot(dir1, dir2), -1f, 1f);
+                        float preciseAngle = math.degrees(math.acos(dotProduct));
+
+                        if (preciseAngle > 0.1f && preciseAngle < 179.9f)
+                        {
+                            // Store the precise angle
+                            preciseAngles.Add(preciseAngle);
+                        }
+                    }
+                }
+
+                // Calculate angles for connections to existing roads
+                for (int i = 0; i < controlPoints.Length; i++)
+                {
+                    ControlPoint controlPoint = controlPoints[i];
+
+                    if (controlPoint.m_OriginalEntity != Entity.Null && m_EdgeData.HasComponent(controlPoint.m_OriginalEntity))
+                    {
+                        if (m_CurveData.HasComponent(controlPoint.m_OriginalEntity))
+                        {
+                            Curve curve = m_CurveData[controlPoint.m_OriginalEntity];
+                            float3 existingEdgeTangent;
+
+                            float distToStart = math.distance(controlPoint.m_Position, curve.m_Bezier.a);
+                            float distToEnd = math.distance(controlPoint.m_Position, curve.m_Bezier.d);
+
+                            if (distToStart < distToEnd)
+                            {
+                                existingEdgeTangent = MathUtils.StartTangent(curve.m_Bezier);
+                            }
+                            else
+                            {
+                                existingEdgeTangent = -MathUtils.EndTangent(curve.m_Bezier);
+                            }
+
+                            float2 existingDir = math.normalizesafe(existingEdgeTangent.xz);
+                            float2 newSegmentDir = float2.zero;
+                            bool hasValidSegment = false;
+
+                            if (i == 0 && controlPoints.Length > 1)
+                            {
+                                ControlPoint nextPoint = controlPoints[1];
+                                float segLength = math.distance(controlPoint.m_Position.xz, nextPoint.m_Position.xz);
+                                if (segLength > 0.01f)
+                                {
+                                    newSegmentDir = (nextPoint.m_Position.xz - controlPoint.m_Position.xz) / segLength;
+                                    hasValidSegment = true;
+                                }
+                            }
+                            else if (i == controlPoints.Length - 1 && i > 0)
+                            {
+                                ControlPoint prevPoint = controlPoints[i - 1];
+                                float segLength = math.distance(prevPoint.m_Position.xz, controlPoint.m_Position.xz);
+                                if (segLength > 0.01f)
+                                {
+                                    newSegmentDir = (controlPoint.m_Position.xz - prevPoint.m_Position.xz) / segLength;
+                                    hasValidSegment = true;
+                                }
+                            }
+
+                            if (hasValidSegment && math.lengthsq(existingDir) > 0.01f)
+                            {
+                                float dotProduct = math.clamp(math.dot(existingDir, newSegmentDir), -1f, 1f);
+                                float preciseConnectionAngle = math.degrees(math.acos(dotProduct));
+
+                                // Calculate both angles - they are supplementary
+                                float angle1 = preciseConnectionAngle;
+                                float angle2 = 180f - preciseConnectionAngle;
+
+                                // Store both angles
+                                if (angle1 > 0f && angle1 <= 180f)
+                                {
+                                    preciseAngles.Add(angle1);
+                                }
+                                if (angle2 > 0f && angle2 <= 180f)
+                                {
+                                    preciseAngles.Add(angle2);
+                                }
+                            }
+                        }
+                    }
+                    // If not an edge, check if it's a Node with multiple connected edges (corner/intersection)
+                    else if (m_NodeData.HasComponent(controlPoint.m_OriginalEntity))
+                    {
+                        // Get all edges connected to this node
+                        if (m_ConnectedEdges.HasBuffer(controlPoint.m_OriginalEntity))
+                        {
+                            DynamicBuffer<ConnectedEdge> connectedEdges = m_ConnectedEdges[controlPoint.m_OriginalEntity];
+
+                            // Determine new segment direction
+                            float2 newSegmentDir = float2.zero;
+                            bool hasValidSegment = false;
+
+                            if (i == 0 && controlPoints.Length > 1)
+                            {
+                                ControlPoint nextPoint = controlPoints[1];
+                                float segLength = math.distance(controlPoint.m_Position.xz, nextPoint.m_Position.xz);
+                                if (segLength > 0.01f)
+                                {
+                                    newSegmentDir = (nextPoint.m_Position.xz - controlPoint.m_Position.xz) / segLength;
+                                    hasValidSegment = true;
+                                }
+                            }
+                            else if (i == controlPoints.Length - 1 && i > 0)
+                            {
+                                ControlPoint prevPoint = controlPoints[i - 1];
+                                float segLength = math.distance(prevPoint.m_Position.xz, controlPoint.m_Position.xz);
+                                if (segLength > 0.01f)
+                                {
+                                    newSegmentDir = (controlPoint.m_Position.xz - prevPoint.m_Position.xz) / segLength;
+                                    hasValidSegment = true;
+                                }
+                            }
+
+                            if (hasValidSegment)
+                            {
+                                // Calculate angles to each connected edge
+                                for (int edgeIdx = 0; edgeIdx < connectedEdges.Length; edgeIdx++)
+                                {
+                                    Entity edgeEntity = connectedEdges[edgeIdx].m_Edge;
+
+                                    if (m_EdgeData.HasComponent(edgeEntity) && m_CurveData.HasComponent(edgeEntity))
+                                    {
+                                        Edge edge = m_EdgeData[edgeEntity];
+                                        Curve curve = m_CurveData[edgeEntity];
+
+                                        // Determine direction of existing edge at this node
+                                        float3 existingEdgeTangent;
+                                        if (edge.m_Start == controlPoint.m_OriginalEntity)
+                                        {
+                                            // Node is at start of edge - use start tangent
+                                            existingEdgeTangent = MathUtils.StartTangent(curve.m_Bezier);
+                                        }
+                                        else
+                                        {
+                                            // Node is at end of edge - use negative end tangent
+                                            existingEdgeTangent = -MathUtils.EndTangent(curve.m_Bezier);
+                                        }
+
+                                        float2 existingDir = math.normalizesafe(existingEdgeTangent.xz);
+
+                                        if (math.lengthsq(existingDir) > 0.01f)
+                                        {
+                                            // Calculate angle
+                                            float dotProduct = math.clamp(math.dot(existingDir, newSegmentDir), -1f, 1f);
+                                            float angle = math.degrees(math.acos(dotProduct));
+
+                                            if (angle > 0f && angle <= 180f)
+                                            {
+                                                preciseAngles.Add(angle);
+
+                                                // Also add supplementary angle
+                                                float supplementary = 180f - angle;
+                                                if (supplementary > 0f && supplementary <= 180f)
+                                                {
+                                                    preciseAngles.Add(supplementary);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             JobHandle jobHandle;
             NativeList<GuideLinesSystem.TooltipInfo> tooltips = m_GuideLinesSystem.GetTooltips(out jobHandle);
             jobHandle.Complete();
@@ -122,6 +317,9 @@ namespace Road_Precision.Systems
                 bool visible;
                 float2 position = WorldToTooltipPos(tooltipInfo.m_Position, out visible);
 
+                // Add offset to precision tooltip to separate from vanilla
+                position.y += 55f;  // Vertical offset
+
                 if (!tooltipGroup.position.Equals(position))
                 {
                     tooltipGroup.position = position;
@@ -131,11 +329,45 @@ namespace Road_Precision.Systems
                 StringTooltip stringTooltip = tooltipGroup.children[0] as StringTooltip;
                 GuideLinesSystem.TooltipType type = tooltipInfo.m_Type;
 
+                // Process both angle and length tooltips from vanilla system
                 if (type == GuideLinesSystem.TooltipType.Angle)
                 {
-                    // Skip vanilla angle tooltips - we calculate precise ones below
-                    // This prevents duplicate angle tooltips (vanilla + precise)
-                    continue;
+                    stringTooltip.icon = "Media/Glyphs/Angle.svg";
+
+                    // Match by rounded angle value (vanilla tooltips are rounded to integers)
+                    float angleValue = tooltipInfo.m_Value; // Default to vanilla value
+                    int vanillaRounded = (int)math.round(tooltipInfo.m_Value);
+
+                    Mod.log.Info($"Processing vanilla tooltip: vanilla angle={tooltipInfo.m_Value} (rounded={vanillaRounded})");
+                    Mod.log.Info($"List has {preciseAngles.Count} precise angles");
+
+                    // Find a precise angle that rounds to the vanilla value
+                    float bestMatch = angleValue;
+                    float smallestDiff = float.MaxValue;
+
+                    foreach (float preciseAngle in preciseAngles)
+                    {
+                        int preciseRounded = (int)math.round(preciseAngle);
+                        Mod.log.Info($"  Precise angle={preciseAngle} (rounded={preciseRounded})");
+
+                        if (preciseRounded == vanillaRounded)
+                        {
+                            // This precise angle rounds to the same value as vanilla
+                            float diff = math.abs(preciseAngle - tooltipInfo.m_Value);
+                            if (diff < smallestDiff)
+                            {
+                                smallestDiff = diff;
+                                bestMatch = preciseAngle;
+                                Mod.log.Info($"    -> MATCHED! Using precise angle {preciseAngle}");
+                            }
+                        }
+                    }
+
+                    angleValue = bestMatch;
+                    Mod.log.Info($"Final angle value: {angleValue}");
+
+                    string formattedAngle = angleValue.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
+                    stringTooltip.value = $"[P] {formattedAngle}°";
                 }
                 else if (type == GuideLinesSystem.TooltipType.Length)
                 {
@@ -154,9 +386,12 @@ namespace Road_Precision.Systems
                 NativeList<ControlPoint> controlPoints = m_NetToolSystem.GetControlPoints(out controlPointsHandle);
                 controlPointsHandle.Complete();
 
+                // COMMENTED OUT: Control point angle tooltips during complex curves
+                // These are now shown in the [P] tooltips with 55px offset instead
                 // We need at least 2 control points to calculate angles between segments
                 // Each angle requires 2 line segments (3 points total)
                 int preciseAngleCount = 0;
+                /*
                 if (controlPoints.Length >= 2)
                 {
                     for (int i = 1; i < controlPoints.Length; i++)
@@ -246,6 +481,7 @@ namespace Road_Precision.Systems
                         }
                     }
                 }
+                */
 
                 // Calculate precise angles for connections to existing roads
                 for (int i = 0; i < controlPoints.Length; i++)
@@ -255,6 +491,9 @@ namespace Road_Precision.Systems
                     // Check if this control point is snapped to an existing road
                     if (controlPoint.m_OriginalEntity != Entity.Null)
                     {
+                        // COMMENTED OUT: Edge connection tooltips (snapping to middle of existing roads)
+                        // These are now shown in the [P] tooltips with 55px offset instead
+                        /*
                         // Try to get the Edge component (if snapped to an edge)
                         if (m_EdgeData.HasComponent(controlPoint.m_OriginalEntity))
                         {
@@ -319,13 +558,10 @@ namespace Road_Precision.Systems
                                     float dotProduct = math.clamp(math.dot(existingDir, newSegmentDir), -1f, 1f);
                                     float preciseConnectionAngle = math.degrees(math.acos(dotProduct));
 
-                                    // Calculate both supplementary angles
-                                    float angle1 = preciseConnectionAngle;
-                                    float angle2 = 180f - preciseConnectionAngle;
-
-                                    // Show the first angle (skip if exactly 0 or 180)
-                                    if (angle1 > 0.1f && angle1 < 179.9f)
+                                    // Skip if angle is too close to 0 or 180 (nearly straight line)
+                                    if (preciseConnectionAngle > 0.1f && preciseConnectionAngle < 179.9f)
                                     {
+                                        // Create tooltip group for this precise connection angle
                                         if (m_PreciseAngleGroups.Count <= preciseAngleCount)
                                         {
                                             m_PreciseAngleGroups.Add(new TooltipGroup
@@ -341,82 +577,41 @@ namespace Road_Precision.Systems
                                             });
                                         }
 
-                                        TooltipGroup connectionAngleGroup1 = m_PreciseAngleGroups[preciseAngleCount];
+                                        TooltipGroup connectionAngleGroup = m_PreciseAngleGroups[preciseAngleCount];
 
-                                        // Position tooltip on one side
-                                        float3 tooltipWorldPos1 = controlPoint.m_Position;
-                                        float2 avgDir1 = math.normalize(existingDir + newSegmentDir);
-                                        float2 offsetDir1 = new float2(-avgDir1.y, avgDir1.x);
-                                        tooltipWorldPos1.xz += offsetDir1 * 25f;
-                                        tooltipWorldPos1.y += 3.0f;
+                                        // Position tooltip at connection point
+                                        float3 tooltipWorldPos = controlPoint.m_Position;
+                                        float2 avgDir = math.normalize(existingDir + newSegmentDir);
+                                        float2 offsetDir = new float2(-avgDir.y, avgDir.x);
+                                        tooltipWorldPos.xz += offsetDir * 2f;
+                                        tooltipWorldPos.y += 1f;
 
-                                        bool visible1;
-                                        float2 tooltipScreenPos1 = WorldToTooltipPos(tooltipWorldPos1, out visible1);
+                                        bool visible;
+                                        float2 tooltipScreenPos = WorldToTooltipPos(tooltipWorldPos, out visible);
 
-                                        if (!connectionAngleGroup1.position.Equals(tooltipScreenPos1))
+                                        if (!connectionAngleGroup.position.Equals(tooltipScreenPos))
                                         {
-                                            connectionAngleGroup1.position = tooltipScreenPos1;
-                                            connectionAngleGroup1.SetChildrenChanged();
+                                            connectionAngleGroup.position = tooltipScreenPos;
+                                            connectionAngleGroup.SetChildrenChanged();
                                         }
 
-                                        StringTooltip connectionAngleTooltip1 = connectionAngleGroup1.children[0] as StringTooltip;
-                                        connectionAngleTooltip1.icon = "Media/Glyphs/Angle.svg";
-                                        string formattedConnectionAngle1 = angle1.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
-                                        connectionAngleTooltip1.value = $"[P] {formattedConnectionAngle1}°";
+                                        StringTooltip connectionAngleTooltip = connectionAngleGroup.children[0] as StringTooltip;
+                                        connectionAngleTooltip.icon = "Media/Glyphs/Angle.svg";
+                                        string formattedConnectionAngle = preciseConnectionAngle.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
+                                        connectionAngleTooltip.value = $"[P] {formattedConnectionAngle}°";
 
-                                        AddGroup(connectionAngleGroup1);
-                                        preciseAngleCount++;
-                                    }
-
-                                    // Show the second angle (supplementary angle on opposite side)
-                                    if (angle2 > 0.1f && angle2 < 179.9f)
-                                    {
-                                        if (m_PreciseAngleGroups.Count <= preciseAngleCount)
-                                        {
-                                            m_PreciseAngleGroups.Add(new TooltipGroup
-                                            {
-                                                path = string.Format("preciseAngleTooltip{0}", preciseAngleCount),
-                                                horizontalAlignment = TooltipGroup.Alignment.Center,
-                                                verticalAlignment = TooltipGroup.Alignment.Center,
-                                                category = TooltipGroup.Category.Network,
-                                                children =
-                                                {
-                                                    new StringTooltip()
-                                                }
-                                            });
-                                        }
-
-                                        TooltipGroup connectionAngleGroup2 = m_PreciseAngleGroups[preciseAngleCount];
-
-                                        // Position tooltip on opposite side
-                                        float3 tooltipWorldPos2 = controlPoint.m_Position;
-                                        float2 avgDir2 = math.normalize(existingDir - newSegmentDir); // Opposite side
-                                        float2 offsetDir2 = new float2(-avgDir2.y, avgDir2.x);
-                                        tooltipWorldPos2.xz += offsetDir2 * 25f;
-                                        tooltipWorldPos2.y += 6.0f; // Larger height difference for better separation
-
-                                        bool visible2;
-                                        float2 tooltipScreenPos2 = WorldToTooltipPos(tooltipWorldPos2, out visible2);
-
-                                        if (!connectionAngleGroup2.position.Equals(tooltipScreenPos2))
-                                        {
-                                            connectionAngleGroup2.position = tooltipScreenPos2;
-                                            connectionAngleGroup2.SetChildrenChanged();
-                                        }
-
-                                        StringTooltip connectionAngleTooltip2 = connectionAngleGroup2.children[0] as StringTooltip;
-                                        connectionAngleTooltip2.icon = "Media/Glyphs/Angle.svg";
-                                        string formattedConnectionAngle2 = angle2.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
-                                        connectionAngleTooltip2.value = $"[P] {formattedConnectionAngle2}°";
-
-                                        AddGroup(connectionAngleGroup2);
+                                        AddGroup(connectionAngleGroup);
                                         preciseAngleCount++;
                                     }
                                 }
                             }
                         }
-                        // If not an edge, check if it's a Node with multiple connected edges
-                        else if (m_NodeData.HasComponent(controlPoint.m_OriginalEntity))
+                        */
+                        // COMMENTED OUT: Node/intersection connection tooltips
+                        // Temporarily disabled to see how it looks without them
+                        /*
+                        // If not an edge, check if it's a Node with multiple connected edges (corner/intersection)
+                        if (m_NodeData.HasComponent(controlPoint.m_OriginalEntity))
                         {
                             // Get all edges connected to this node
                             if (m_ConnectedEdges.HasBuffer(controlPoint.m_OriginalEntity))
@@ -504,8 +699,8 @@ namespace Road_Precision.Systems
                                                     float3 tooltipWorldPos = controlPoint.m_Position;
                                                     float2 avgDir = math.normalize(existingDir + newSegmentDir);
                                                     float2 offsetDir = new float2(-avgDir.y, avgDir.x);
-                                                    tooltipWorldPos.xz += offsetDir * (10f + edgeIdx * 3f); // Offset each tooltip
-                                                    tooltipWorldPos.y += 2.5f + edgeIdx * 0.5f;
+                                                    tooltipWorldPos.xz += offsetDir * 3f;
+                                                    tooltipWorldPos.y += 1.5f;
 
                                                     bool visible;
                                                     float2 tooltipScreenPos = WorldToTooltipPos(tooltipWorldPos, out visible);
@@ -530,6 +725,7 @@ namespace Road_Precision.Systems
                                 }
                             }
                         }
+                        */
                     }
                 }
             }

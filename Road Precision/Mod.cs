@@ -3,7 +3,6 @@ using Colossal.Logging;
 using Game;
 using Game.Modding;
 using Game.SceneFlow;
-using HarmonyLib;
 using Road_Precision.Localization;
 using Road_Precision.Systems;
 
@@ -17,8 +16,6 @@ namespace Road_Precision
         public static Mod Instance { get; private set; }
         public Setting Setting { get; private set; }
 
-        private Harmony m_Harmony;
-
         public void OnLoad(UpdateSystem updateSystem)
         {
             log.Info(nameof(OnLoad));
@@ -31,19 +28,12 @@ namespace Road_Precision
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Setting));
             AssetDatabase.global.LoadSettings(nameof(Road_Precision), Setting, new Setting(this));
 
-            // Apply Harmony patches to disable vanilla tooltip systems
-            m_Harmony = new Harmony($"{nameof(Road_Precision)}.{nameof(Mod)}");
-            m_Harmony.PatchAll(typeof(Mod).Assembly);
-            log.Info("Harmony patches applied (NetCourseTooltipSystem and GuideLineTooltipSystem disabled)");
-
-            // Register custom tooltip systems that replace vanilla tooltips with precision versions
+            // Register precision tooltip systems that run alongside vanilla tooltips
             updateSystem.UpdateAt<PrecisionNetCourseTooltipSystem>(SystemUpdatePhase.UITooltip);
-            log.Info("PrecisionNetCourseTooltipSystem registered (replaces vanilla NetCourse tooltips)");
+            log.Info("PrecisionNetCourseTooltipSystem registered (shows alongside vanilla with 300px offset)");
 
             updateSystem.UpdateAt<PrecisionGuideLineTooltipSystem>(SystemUpdatePhase.UITooltip);
-            log.Info("PrecisionGuideLineTooltipSystem registered (replaces vanilla GuideLine tooltips)");
-
-            log.Info("NOTE: Tooltip patches are incompatible with ExtendedTooltip mod. Please disable one or the other.");
+            log.Info("PrecisionGuideLineTooltipSystem registered (shows alongside vanilla with small offset)");
 
             if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
                 log.Info($"Current mod asset at {asset.path}");
@@ -52,9 +42,6 @@ namespace Road_Precision
         public void OnDispose()
         {
             log.Info(nameof(OnDispose));
-
-            // Unpatch Harmony
-            m_Harmony?.UnpatchSelf();
 
             if (Setting != null)
             {
