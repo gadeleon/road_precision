@@ -22,7 +22,7 @@ This is not how I would have preferred to have done this (simply modifying the U
 
 ### [P] Tooltip
 - All precise tooltips are prefixed with `[P]` to distinguish them from vanilla tooltips
-- Precise tooltips appear by themselves by hiding the vanilla tooltip system.
+- [P] Angle tooltips appear below the vanilla toolip; the [P] Length tooltips, to the side.
 
 ## Settings
 
