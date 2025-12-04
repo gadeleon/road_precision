@@ -6,7 +6,7 @@ My first attempt at a Cities: Skylines II mod. It displays precise decimal value
 This is not how I would have preferred to have done this (simply modifying the UI) but instead takes the distance/angle calculations and converts them to strings before the game UI itself has a chance to round-down the calculations.
 
 ## Compatibility
-Not compatible with ExtendedTooltips (for now). We are both patching the same code and I have been unable to resolve the conflicts.
+[Needs Testing] Should be compatible with **ExtendedTooltips** but needs extensive testing.
 ## Features
 
 ### Precise Measurements
@@ -22,7 +22,7 @@ Not compatible with ExtendedTooltips (for now). We are both patching the same co
 
 ### [P] Tooltip
 - All precise tooltips are prefixed with `[P]` to distinguish them from vanilla tooltips
-- Precise tooltips appear alongside vanilla tooltips for easy comparison (and because my attempts at replacing the tooltips failed gloriously).
+- [P] Angle tooltips appear below the vanilla toolip; the [P] Length tooltips, to the side.
 
 ## Settings
 
@@ -45,10 +45,12 @@ Setting decimal places to 0 is equivalent to disabling the feature.
 ## Technical Details
 
 I got this to work by:
-- Patching the vanilla `NetCourseTooltipSystem` and `GuideLineTooltipSystem` to disable their default behavior
-- Registering custom tooltip systems that calculate and display precise values
+- Registering custom `PrecisionNetCourseTooltipSystem` and `PrecisionGuideLineTooltipSystem` that run alongside vanilla tooltips
+- Displaying precise [P] tooltips near the vanilla tooltips.
 - Accessing `NetToolSystem` control points to calculate angles directly from road geometry
 - Using the Entity Component System (ECS) to query road edge and node data for connection angles
+
+Precise angles are calculated using vector dot products and acos() from control point tangent directions. The mod calculates angles for consecutive control points, edge connections, and node/intersection connections. These calculated precise angles are then matched to vanilla tooltips by comparing rounded integer values, allowing the mod to replace vanilla's rounded angle (e.g., 90°) with the actual calculated value (e.g., 89.73°).
 
 ## License
 
@@ -71,3 +73,4 @@ Developed using:
 
 ## Known Issues:
 - The continuous curve tool may not always show precise tooltips.
+- **[P] angle tooltips are not displayed when "snap to existing geometry" is disabled.** When drawing roads without snapping enabled, the mod cannot calculate precise angles because control points don't reference existing road entities. In this case, only vanilla angle tooltips and [P] length tooltips will be shown. Enable snap-to-geometry for precise angle measurements.

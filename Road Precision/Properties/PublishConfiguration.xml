@@ -10,7 +10,7 @@
 	<LongDescription>
 		Adds decimal places to road angles and lengths to allow for better precision when drawing roads.
 		## Compatibility
-		Not compatible with ExtendedTooltips (for now). We are both patching the same code and I have been unable to resolve the conflicts.
+		[Needs Testing] Should be compatible with **ExtendedTooltips** but needs extensive testing.
 		## Features
 
 		### Precise Measurements
@@ -32,27 +32,46 @@
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<!--Screenshot, can be set multiple times-->
-	<Screenshot Value="Properties/949230_32.jpg" />
-	<Screenshot Value="Properties/949230_33.jpg" />
-	<Screenshot Value="Properties/949230_34.jpg" />
-	<Screenshot Value="Properties/949230_35.jpg" />
-	<Screenshot Value="Properties/949230_36.jpg" />
+	<Screenshot Value="Properties/949230_49.jpg" />
+	<Screenshot Value="Properties/949230_57.jpg" />
+	<Screenshot Value="Properties/949230_60.jpg" />
+	<Screenshot Value="Properties/949230_61.jpg" />
 	<!--Tag, can be set multiple times-->
 	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.0.1" />
+	<ModVersion Value="0.1.0" />
 	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.4.*" />
+	<GameVersion Value="1.5.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="" />
 	<!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
 	<RequiredDLC Value="" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-	<ChangeLog Value="" />
-	<!--<ChangeLog>
-	</ChangeLog>-->
+	<!--ChangeLog Value="" /-->
+	<ChangeLog>
+		## [Unreleased]
+
+		### Changed
+		- Both vanilla and precision tooltips now display simultaneously
+		- NetCourse precision tooltips now offset to the right of vanilla tooltips
+		- GuideLine precision tooltips now offset below vanilla tooltips
+		- Precision tooltip systems now use unique tooltip paths to prevent conflicts
+
+		### Fixed
+		- Compatible with versions 1.5.*
+		- Removed duplicate angle tooltips at control points during complex curves (now shown in [P] tooltips only)
+		- Removed duplicate angle tooltips when connecting to road edges (now shown in [P] tooltips only)
+		- Duplicate tooltip path errors when drawing long roads
+		- Duplicate angle tooltips appearing on top of each other at control points
+		- Precise angles now work correctly when connecting to intersections/corners (Nodes)
+		- [Needs Testing] Should work with **ExtendedTooltip** and other tooltip mods
+
+		### Technical
+		- Looked into UI modding approach for tooltip color customization but no luck
+
+	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="github" Url="https://github.com/gadeleon/road_precision" />
 	<!--Supported values Public, Private, Unlisted-->

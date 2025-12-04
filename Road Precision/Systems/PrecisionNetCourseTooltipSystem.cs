@@ -10,7 +10,8 @@ namespace Road_Precision.Systems
 {
     /// <summary>
     /// Custom tooltip system for road networks that displays precise float values
-    /// instead of rounding to integers
+    /// alongside vanilla tooltips (which show rounded integers).
+    /// Creates separate tooltips with unique path to coexist with vanilla system.
     /// </summary>
     public partial class PrecisionNetCourseTooltipSystem : TooltipSystemBase
     {
@@ -74,7 +75,7 @@ namespace Road_Precision.Systems
 
             m_Group = new TooltipGroup
             {
-                path = "tempNetEdgeStart",
+                path = "precisionNetCourse",
                 horizontalAlignment = TooltipGroup.Alignment.Center,
                 verticalAlignment = TooltipGroup.Alignment.Center,
                 category = TooltipGroup.Category.Network
@@ -184,9 +185,13 @@ namespace Road_Precision.Systems
 
                 float2 tooltipPos = WorldToTooltipPos(worldPos, out bool visible);
 
-                if (!m_Group.position.Equals(tooltipPos))
+                // Offset precision tooltip to avoid overlap with vanilla tooltip
+                // Offset to the right by 300 pixels in screen space
+                float2 offsetTooltipPos = tooltipPos + new float2(300f, 0f);
+
+                if (!m_Group.position.Equals(offsetTooltipPos))
                 {
-                    m_Group.position = tooltipPos;
+                    m_Group.position = offsetTooltipPos;
                     m_Group.SetChildrenChanged();
                 }
 
