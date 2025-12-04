@@ -31,10 +31,11 @@
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<!--Screenshot, can be set multiple times-->
-	<Screenshot Value="Properties/949230_49.jpg" />
 	<Screenshot Value="Properties/949230_57.jpg" />
 	<Screenshot Value="Properties/949230_60.jpg" />
 	<Screenshot Value="Properties/949230_61.jpg" />
+	<Screenshot Value="Properties/949230_62.jpg" />
+	<Screenshot Value="Properties/949230_63.jpg" />
 	<!--Tag, can be set multiple times-->
 	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
