@@ -45,10 +45,12 @@ Setting decimal places to 0 is equivalent to disabling the feature.
 ## Technical Details
 
 I got this to work by:
-- Patching the vanilla `NetCourseTooltipSystem` and `GuideLineTooltipSystem` to disable their default behavior
-- Registering custom tooltip systems that calculate and display precise values
+- Registering custom `PrecisionNetCourseTooltipSystem` and `PrecisionGuideLineTooltipSystem` that run alongside vanilla tooltips
+- Displaying precise [P] tooltips near the vanilla tooltips.
 - Accessing `NetToolSystem` control points to calculate angles directly from road geometry
 - Using the Entity Component System (ECS) to query road edge and node data for connection angles
+
+Precise angles are calculated using vector dot products and acos() from control point tangent directions. The mod calculates angles for consecutive control points, edge connections, and node/intersection connections. These calculated precise angles are then matched to vanilla tooltips by comparing rounded integer values, allowing the mod to replace vanilla's rounded angle (e.g., 90°) with the actual calculated value (e.g., 89.73°).
 
 ## License
 
