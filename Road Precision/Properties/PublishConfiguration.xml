@@ -51,26 +51,7 @@
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--ChangeLog Value="" /-->
 	<ChangeLog>
-		## [Unreleased]
-
-		### Changed
-		- Both vanilla and precision tooltips now display simultaneously
-		- NetCourse precision tooltips now offset to the right of vanilla tooltips
-		- GuideLine precision tooltips now offset below vanilla tooltips
-		- Precision tooltip systems now use unique tooltip paths to prevent conflicts
-
-		### Fixed
-		- Compatible with versions 1.5.*
-		- Removed duplicate angle tooltips at control points during complex curves (now shown in [P] tooltips only)
-		- Removed duplicate angle tooltips when connecting to road edges (now shown in [P] tooltips only)
-		- Duplicate tooltip path errors when drawing long roads
-		- Duplicate angle tooltips appearing on top of each other at control points
-		- Precise angles now work correctly when connecting to intersections/corners (Nodes)
-		- [Needs Testing] Should work with **ExtendedTooltip** and other tooltip mods
-
-		### Technical
-		- Looked into UI modding approach for tooltip color customization but no luck
-
+		Fix: Precise angles appear when drawing straight roads.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="github" Url="https://github.com/gadeleon/road_precision" />
