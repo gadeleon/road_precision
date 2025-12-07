@@ -63,12 +63,14 @@ namespace Road_Precision.Systems
             // Create standard string tooltips (UI recognizes these)
             m_Length = new StringTooltip
             {
+                path = "precisionNetCourse/length",
                 icon = "Media/Glyphs/Length.svg",
                 value = "0m"
             };
 
             m_Slope = new StringTooltip
             {
+                path = "precisionNetCourse/slope",
                 icon = "Media/Glyphs/Slope.svg",
                 value = "0%"
             };
