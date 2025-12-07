@@ -7,26 +7,25 @@
 	<ShortDescription Value="Adds decimal places to roads for enhanced precision of angles and length." />
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="Adds decimal places to road angles and lengths to allow for better precision at all times." /-->
-	<LongDescription>
-		Adds decimal places to road angles and lengths to allow for better precision when drawing roads.
-		## Compatibility
-		[Needs Testing] Should be compatible with **ExtendedTooltips** but needs extensive testing.
-		## Features
-
-		### Precise Measurements
-		- **Distance/Length**: Shows more precise measurements with configurable decimal places (e.g., "12.34m" instead of "12m")
-		- **Slope/Grade**: Displays slope percentages (e.g., "4.23%" instead of "4%")
-		- **Angles**: Shows more accurate angles when placing curved roads and connecting to existing roads (e.g., "89.73°" instead of "90°")
-
-		### Connection Angles
-		- Displays precise angles when connecting new roads to existing roads
-		- Shows both supplementary angles at each connection point
-		- Works with both edge connections and node/intersection connections
-		- Should handle multiple connected roads at corners
-
-		### [P] Tooltip
-		- All precise tooltips are prefixed with `[P]` to distinguish them from vanilla tooltips
-		- Precise tooltips appear alongside vanilla tooltips for easy comparison (and because my attempts at replacing the tooltips failed gloriously).
+	<LongDescription> Adds decimal places to road angles and lengths to allow for better precision when drawing roads. 
+## Compatibility 
+[Needs Testing] Should be compatible with **ExtendedTooltips** but needs extensive testing. 
+## Features
+		
+### Precise Measurements 
+* **Distance/Length**: Shows more precise measurements with configurable decimal places (e.g., "12.34m" instead of "12m") 
+* **Slope/Grade**: Displays slope percentages (e.g., "4.23%" instead of "4%") 
+* **Angles**: Shows more accurate angles when placing curved roads and connecting to existing roads (e.g., "89.73°" instead of "90°")
+		
+### Connection Angles 
+* Displays precise angles when connecting new roads to existing roads 
+* Shows both supplementary angles at each connection point 
+* Works with both edge connections and node/intersection connections 
+* Should handle multiple connected roads at corners
+		
+### [P] Tooltip 
+* All precise tooltips are prefixed with `[P]` to distinguish them from vanilla tooltips 
+* Precise tooltips appear alongside vanilla tooltips for easy comparison (and because my attempts at replacing the tooltips failed gloriously).
 
 	</LongDescription>
 	<!--Thumbnail-->
@@ -41,7 +40,7 @@
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.1.1" />
+	<ModVersion Value="0.1.2" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.5.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -50,8 +49,7 @@
 	<RequiredDLC Value="" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--ChangeLog Value="" /-->
-	<ChangeLog>
-		Fix: Precise angles appear when drawing straight roads.
+	<ChangeLog> Fix: Duplicate tooltip path bug (thanks to @bc-lee on Github)
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="github" Url="https://github.com/gadeleon/road_precision" />
