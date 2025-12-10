@@ -67,11 +67,7 @@
         <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets"/>
         <None Remove="dnSpy\**" />
     </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="HarmonyX" Version="2.16.0" />
-    </ItemGroup>
-
+    
     <ItemGroup>
       <Folder Include="Localization\" />
     </ItemGroup>
