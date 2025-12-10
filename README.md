@@ -6,7 +6,8 @@ My first attempt at a Cities: Skylines II mod. It displays precise decimal value
 This is not how I would have preferred to have done this (simply modifying the UI) but instead takes the distance/angle calculations and converts them to strings before the game UI itself has a chance to round-down the calculations.
 
 ## Compatibility
-[Needs Testing] Should be compatible with **ExtendedTooltips** but needs extensive testing.
+Should be compatible with **ExtendedTooltips**.
+
 ## Features
 
 ### Precise Measurements
