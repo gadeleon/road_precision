@@ -312,6 +312,7 @@ namespace Road_Precision.Systems
                 }
             }
 
+            int groupIndex = 0;
             for (int i = 0; i < tooltips.Length; i++)
             {
                 GuideLinesSystem.TooltipInfo tooltipInfo = tooltips[i];
@@ -323,11 +324,11 @@ namespace Road_Precision.Systems
                     continue; // Don't show [P] angle tooltips when snap-to-geometry is disabled
                 }
 
-                if (m_Groups.Count <= i)
+                if (m_Groups.Count <= groupIndex)
                 {
                     m_Groups.Add(new TooltipGroup
                     {
-                        path = string.Format("precisionGuideLineTooltip{0}", i),
+                        path = string.Format("precisionGuideLineTooltip{0}", groupIndex),
                         horizontalAlignment = TooltipGroup.Alignment.Center,
                         verticalAlignment = TooltipGroup.Alignment.Center,
                         category = TooltipGroup.Category.Network,
@@ -338,7 +339,7 @@ namespace Road_Precision.Systems
                     });
                 }
 
-                TooltipGroup tooltipGroup = m_Groups[i];
+                TooltipGroup tooltipGroup = m_Groups[groupIndex];
                 bool visible;
                 float2 position = WorldToTooltipPos(tooltipInfo.m_Position, out visible);
 
@@ -395,6 +396,7 @@ namespace Road_Precision.Systems
                 }
 
                 AddGroup(tooltipGroup);
+                groupIndex++;
             }
 
             // COMMENTED OUT: Create additional precise angle tooltips from NetToolSystem control points
