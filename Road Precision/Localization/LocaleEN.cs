@@ -38,10 +38,15 @@ namespace Road_Precision.Localization
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.EnableFloatDistance)), 
                   "Show distance as floating point instead of integer" },
                 
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.EnableFloatAngle)), 
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.EnableFloatAngle)),
                   "Enable Float Angle" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.EnableFloatAngle)), 
-                  "Show angle as floating point instead of integer" }
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.EnableFloatAngle)),
+                  "Show angle as floating point instead of integer" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.EnableSummaryPanel)),
+                  "Enable Summary Panel" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.EnableSummaryPanel)),
+                  "Show a fixed on-screen panel with all measurement values (useful when starting point scrolls off-screen)" }
             };
         }
 

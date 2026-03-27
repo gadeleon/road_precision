@@ -33,12 +33,16 @@ namespace Road_Precision
         [SettingsUISection(kSection, kDisplayGroup)]
         public bool EnableFloatAngle { get; set; }
 
+        [SettingsUISection(kSection, kDisplayGroup)]
+        public bool EnableSummaryPanel { get; set; }
+
         public override void SetDefaults()
         {
             DistanceDecimalPlaces = 2;
             AngleDecimalPlaces = 2;
             EnableFloatDistance = true;
             EnableFloatAngle = true;
+            EnableSummaryPanel = true;
         }
     }
 }

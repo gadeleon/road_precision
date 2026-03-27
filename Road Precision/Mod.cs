@@ -35,6 +35,9 @@ namespace Road_Precision
             updateSystem.UpdateAt<PrecisionGuideLineTooltipSystem>(SystemUpdatePhase.UITooltip);
             log.Info("PrecisionGuideLineTooltipSystem registered (shows alongside vanilla with small offset)");
 
+            updateSystem.UpdateAt<PrecisionSummaryPanelSystem>(SystemUpdatePhase.UITooltip);
+            log.Info("PrecisionSummaryPanelSystem registered (fixed screen panel)");
+
             if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
                 log.Info($"Current mod asset at {asset.path}");
         }

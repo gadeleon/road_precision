@@ -23,7 +23,14 @@ Should be compatible with **ExtendedTooltips**.
 
 ### [P] Tooltip
 - All precise tooltips are prefixed with `[P]` to distinguish them from vanilla tooltips
-- [P] Angle tooltips appear below the vanilla toolip; the [P] Length tooltips, to the side.
+- [P] Angle tooltips appear below the vanilla tooltip; the [P] Length tooltips, to the side.
+
+### Summary Panel
+- A fixed on-screen panel in the top-left corner that always shows all active measurements
+- Useful when placing long roads where the starting point scrolls off-screen, making the world-space tooltips invisible
+- Also avoids the overlapping tooltip problem when zoomed far out
+- Shows total road length, slope, and any active guide line angles/lengths
+- Can be toggled on/off in settings
 
 ## Settings
 
@@ -33,8 +40,9 @@ Access mod settings from the game's Options menu:
 - **Angle Decimal Places** (0-4): Number of decimal places for angle measurements
 - **Enable Float Distance**: Toggle precise distance display on/off
 - **Enable Float Angle**: Toggle precise angle display on/off
+- **Enable Summary Panel**: Toggle the fixed top-left summary panel on/off
 
-Setting decimal places to 0 is equivalent to disabling the feature.
+Setting decimal places to 0 is equivalent to disabling the float display feature.
 
 ## Installation
 
@@ -47,9 +55,10 @@ Setting decimal places to 0 is equivalent to disabling the feature.
 
 I got this to work by:
 - Registering custom `PrecisionNetCourseTooltipSystem` and `PrecisionGuideLineTooltipSystem` that run alongside vanilla tooltips
-- Displaying precise [P] tooltips near the vanilla tooltips.
+- Displaying precise [P] tooltips near the vanilla tooltips
 - Accessing `NetToolSystem` control points to calculate angles directly from road geometry
 - Using the Entity Component System (ECS) to query road edge and node data for connection angles
+- A third `PrecisionSummaryPanelSystem` reads cached values from the other two systems and renders them in a fixed screen-space `TooltipGroup`, avoiding any duplicate entity queries
 
 Precise angles are calculated using vector dot products and acos() from control point tangent directions. The mod calculates angles for consecutive control points, edge connections, and node/intersection connections. These calculated precise angles are then matched to vanilla tooltips by comparing rounded integer values, allowing the mod to replace vanilla's rounded angle (e.g., 90°) with the actual calculated value (e.g., 89.73°).
 
