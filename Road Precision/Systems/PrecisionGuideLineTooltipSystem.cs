@@ -19,6 +19,14 @@ namespace Road_Precision.Systems
     /// </summary>
     public partial class PrecisionGuideLineTooltipSystem : TooltipSystemBase
     {
+        public struct DisplayedValue
+        {
+            public GuideLinesSystem.TooltipType Type;
+            public float Value;
+        }
+
+        public List<DisplayedValue> LastValues { get; private set; } = new List<DisplayedValue>();
+
         private GuideLinesSystem m_GuideLinesSystem;
         private NetToolSystem m_NetToolSystem;
         private ToolSystem m_ToolSystem;
@@ -60,6 +68,8 @@ namespace Road_Precision.Systems
 
         protected override void OnUpdate()
         {
+            LastValues.Clear();
+
             // Update component lookups
             m_EdgeData = SystemAPI.GetComponentLookup<Edge>(true);
             m_CurveData = SystemAPI.GetComponentLookup<Curve>(true);
@@ -387,12 +397,14 @@ namespace Road_Precision.Systems
 
                     string formattedAngle = angleValue.ToString($"F{m_AngleDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
                     stringTooltip.value = $"[P] {formattedAngle}°";
+                    LastValues.Add(new DisplayedValue { Type = type, Value = angleValue });
                 }
                 else if (type == GuideLinesSystem.TooltipType.Length)
                 {
                     stringTooltip.icon = "Media/Glyphs/Length.svg";
                     string formattedLength = tooltipInfo.m_Value.ToString($"F{m_LengthDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
                     stringTooltip.value = $"[P] {formattedLength}m";
+                    LastValues.Add(new DisplayedValue { Type = type, Value = tooltipInfo.m_Value });
                 }
 
                 AddGroup(tooltipGroup);

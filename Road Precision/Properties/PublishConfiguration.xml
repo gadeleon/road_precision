@@ -27,6 +27,13 @@
 * All precise tooltips are prefixed with `[P]` to distinguish them from vanilla tooltips 
 * Precise tooltips appear alongside vanilla tooltips for easy comparison (and because my attempts at replacing the tooltips failed gloriously).
 
+### Summary Panel
+- A fixed on-screen panel in the top-left corner that always shows all active measurements
+- Useful when placing long roads where the starting point scrolls off-screen, making the world-space tooltips invisible
+- Also avoids the overlapping tooltip problem when zoomed far out
+- Shows total road length, slope, and any active guide line angles/lengths
+- Can be toggled on/off in settings		
+
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
@@ -41,7 +48,7 @@
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.1.4" />
+	<ModVersion Value="0.2.0" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.5.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -50,7 +57,7 @@
 	<RequiredDLC Value="" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--ChangeLog Value="" /-->
-	<ChangeLog> Fix: Error pop up when placing roads. 
+	<ChangeLog> Added: Summary Panel in the top left corner. 
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="github" Url="https://github.com/gadeleon/road_precision" />

@@ -26,6 +26,10 @@ namespace Road_Precision.Systems
         private int m_FrameCounter = 0;
         private const int SETTINGS_CHECK_INTERVAL = 60; // Check settings every 60 frames (~1 second at 60fps)
 
+        public float LastCurveLength { get; private set; }
+        public float LastSlope { get; private set; }
+        public bool HasActiveData { get; private set; }
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -93,6 +97,7 @@ namespace Road_Precision.Systems
                 m_NetTool.mode == NetToolSystem.Mode.Replace ||
                 Camera.main == null)
             {
+                HasActiveData = false;
                 return;
             }
 
@@ -165,6 +170,9 @@ namespace Road_Precision.Systems
                 }
             }
 
+            LastCurveLength = curveLength;
+            HasActiveData = courses.Length > 0;
+
             // Format length with decimal places
             string formattedLength = curveLength.ToString($"F{m_LengthDecimalPlaces}", System.Globalization.CultureInfo.InvariantCulture);
             m_Length.value = $"[P] {formattedLength}m";
@@ -176,6 +184,7 @@ namespace Road_Precision.Systems
                 float endY = courses[courses.Length - 1].m_EndPosition.m_Position.y;
                 float slopePercent = 100f * (endY - startY) / curveLength;
                 float finalSlope = math.select(slopePercent, 0f, math.abs(slopePercent) < 0.05f);
+                LastSlope = finalSlope;
 
                 // Format slope with decimal places
                 string sign = finalSlope >= 0 ? "" : "";
